@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Applesauce",
+  "version": "0.1.0",
+  "description": "A simple and flexible NationStates endorsement tool.",
+  "permissions": ["scripting"],
+  "host_permissions": ["*://*.nationstates.net/*"],
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.nationstates.net/template-overall=none/page=blank/applesauce*"
+      ],
+      "css": ["bootstrap/bootstrap.min.css", "styles.css"],
+      "js": ["bootstrap/bootstrap.min.js", "loader.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["index.html"],
+      "matches": ["*://*.nationstates.net/*"]
+    }
+  ]
+}

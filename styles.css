@@ -1,0 +1,14 @@
+#log {
+  height: calc(var(--bs-body-line-height) * 10em);
+  overflow: scroll;
+}
+.select-none {
+  -webkit-user-select: none;
+  user-select: none;
+}
+.icon {
+  height: 1.5ex;
+  display: inline-block;
+  vertical-align: baseline;
+  fill: currentColor;
+}
