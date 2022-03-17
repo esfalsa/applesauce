@@ -20,12 +20,12 @@ let params = loc.searchParams;
 if (params.has("nation")) {
   document.querySelector("#nation").value = params.get("nation");
   setLocalId().then(() => {
-    loadNation(params.get("nation"));
+    loadNation(params.get("nation"), params.has("reverse"));
   });
 } else if (params.has("region")) {
   document.querySelector("#region").value = params.get("region");
   setLocalId().then(() => {
-    loadRegion(params.get("region"));
+    loadRegion(params.get("region"), params.has("reverse"));
   });
 } else if (params.has("nations")) {
   let sep = params.has("separator") ? params.get("separator") : ",";
@@ -59,7 +59,7 @@ function load(id, nats = [], sep = ",") {
   }
 }
 
-function loadNation(nation) {
+function loadNation(nation, reverse = false) {
   disableSubmit();
 
   let endpoint = new URL(
@@ -87,13 +87,17 @@ function loadNation(nation) {
           nats.push(endorser.textContent);
         });
 
+      if (reverse) {
+        nats = nats.reverse();
+      }
+
       load(document.querySelector("#localid").value, nats, ",");
 
       enableSubmit();
     });
 }
 
-function loadRegion(region) {
+function loadRegion(region, reverse = false) {
   disableSubmit();
 
   let endpoint = new URL(
@@ -136,20 +140,27 @@ function loadRegion(region) {
         }
       });
 
+      if (reverse) {
+        nats = nats.reverse();
+      }
+
       load(document.querySelector("#localid").value, nats, ",");
 
       enableSubmit();
     });
 }
 
-function loadManual(nats, sep = ",") {
-  console.log("loadManual");
-
+function loadManual(nats, sep = ",", reverse = false) {
   disableSubmit();
 
   load(
     document.querySelector("#localid").value,
-    nats.split(sep).map((item) => item.trim()),
+    reverse
+      ? nats
+          .split(sep)
+          .map((item) => item.trim())
+          .reverse()
+      : nats.split(sep).map((item) => item.trim()),
     sep
   );
 

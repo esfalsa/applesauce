@@ -25,6 +25,7 @@ You can also load nations with URL parameters. This is useful to create a link y
 - `separator` accepts any character or string separating nations in the list. If not provided, it defaults to a comma.
 - `nation` accepts the name of a nation to cross on.
 - `region` accepts the name of a region to cross in.
+- `reverse` reverses the order of nations to endorse, if included.
 
 These are included in the URL as query parameters, e.g. as in `https://www.nationstates.net/template-overall=none/page=blank/applesauce?region=artificial_solar_system`.
 
@@ -32,7 +33,7 @@ These are included in the URL as query parameters, e.g. as in `https://www.natio
 
 Users are responsible for ensuring the tools that they use are legal. Applesauce is fully open-source and users are strongly encouraged to review the code before using it. For convenience, a summary of how it works is below.
 
-- After the intial pageload, one request is made to retrieve the user's `localid`.
+- After the initial pageload, one request is made to retrieve the user's `localid`.
 - When the user submits a manual list of nations, no additional requests are made.
 - When the user submits a nation to cross on, one additional request is made to that nation's page in order to retrieve the list of nations endorsing it.
 - When the user submits a region to cross in, one additional request is made to that region's Ajax2 page.
