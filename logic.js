@@ -1,10 +1,7 @@
 const userAgent = "Applesauce | Original script author: Esfalsa";
 
 let nations;
-let separator;
 let localid;
-
-let loc = new URL(window.location);
 
 const loaderCollapse = new bootstrap.Collapse(
   document.querySelector("#loaderCollapse"),
@@ -15,37 +12,43 @@ const endorserCollapse = new bootstrap.Collapse(
   { toggle: false }
 );
 
-let params = loc.searchParams;
+const params = new URL(window.location).searchParams;
 
 if (params.has("nation")) {
   document.querySelector("#nation").value = params.get("nation");
-  setLocalId().then(() => {
-    loadNation(params.get("nation"), params.has("reverse"));
-  });
+  loadNation(params.get("nation"), params.has("reverse"));
 } else if (params.has("region")) {
   document.querySelector("#region").value = params.get("region");
-  setLocalId().then(() => {
-    loadRegion(params.get("region"), params.has("reverse"));
-  });
+  loadRegion(params.get("region"), params.has("reverse"));
 } else if (params.has("nations")) {
   let sep = params.has("separator") ? params.get("separator") : ",";
   document.querySelector("#nations").value = params.get("nations");
   document.querySelector("#separator").value = sep;
-  setLocalId().then(() => {
-    loadManual(params.get("nations"), sep);
-  });
-} else {
-  disableSubmit();
-
-  setLocalId().then(() => {
-    enableSubmit();
-  });
+  loadManual(params.get("nations"), sep);
 }
 
-function load(id, nats = [], sep = ",") {
+async function getLocalId() {
+  let response = await fetch(
+    `https://www.nationstates.net/template-overall=none/page=create_region?x-useragent=${encodeURIComponent(
+      userAgent
+    )}`,
+    {
+      headers: {
+        "User-Agent": userAgent,
+      },
+    }
+  );
+
+  let text = await response.text();
+
+  return text.match(
+    /(?<=<input type="hidden" name="localid" value=").*(?=">)/g
+  )[0];
+}
+
+function load(id, nats = []) {
   if (nats.length > 0) {
     nations = nats;
-    separator = sep;
     localid = id;
 
     loaderCollapse.hide();
@@ -59,9 +62,24 @@ function load(id, nats = [], sep = ",") {
   }
 }
 
-function loadNation(nation, reverse = false) {
+async function loadNation(nation, reverse = false) {
+  if (!nation) {
+    return false;
+  }
+
   disableSubmit();
 
+  const [nats, localid] = await Promise.all([
+    getNationCross(nation),
+    getLocalId(),
+  ]);
+
+  load(localid, reverse ? nats.reverse() : nats);
+
+  enableSubmit();
+}
+
+async function getNationCross(nation) {
   let endpoint = new URL(
     `https://www.nationstates.net/template-overall=none/nation=${encodeURIComponent(
       nation
@@ -71,98 +89,95 @@ function loadNation(nation, reverse = false) {
     "x-useragent": userAgent,
   });
 
-  fetch(endpoint, {
+  const response = await fetch(endpoint, {
     headers: {
       "User-Agent": userAgent,
     },
-  })
-    .then((response) => response.text())
-    .then((html) => {
-      let doc = new DOMParser().parseFromString(html, "text/html");
-      let nats = [nation];
+  });
 
-      doc
-        .querySelectorAll("div.unbox a.nlink span.nnameblock")
-        .forEach((endorser) => {
-          nats.push(endorser.textContent);
-        });
+  const html = await response.text();
 
-      if (reverse) {
-        nats = nats.reverse();
-      }
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  let nats = [nation];
 
-      load(document.querySelector("#localid").value, nats, ",");
-
-      enableSubmit();
+  doc
+    .querySelectorAll("div.unbox a.nlink span.nnameblock")
+    .forEach((endorser) => {
+      nats.push(endorser.textContent);
     });
+
+  return nats;
 }
 
-function loadRegion(region, reverse = false) {
+async function loadRegion(region, reverse = false) {
+  if (!region) {
+    return false;
+  }
+
   disableSubmit();
 
+  const [admitted, localid] = await Promise.all([
+    getRegionCross(region),
+    getLocalId(),
+  ]);
+
+  load(localid, reverse ? admitted.reverse() : admitted);
+
+  enableSubmit();
+}
+
+async function getRegionCross(region) {
   let endpoint = new URL(
-    `https://www.nationstates.net/page=ajax2/a=reports/view=region.${encodeURIComponent(
-      region
-    )}/filter=member`
+    `https://www.nationstates.net/page=ajax2/a=reports/view=region.${region}/filter=member`
   );
   endpoint.search = new URLSearchParams({
     "x-useragent": userAgent,
   });
 
-  fetch(endpoint, {
+  const response = await fetch(endpoint, {
     headers: {
       "User-Agent": userAgent,
     },
-  })
-    .then((response) => response.text())
-    .then((html) => {
-      let parser = new DOMParser();
-      let doc = parser.parseFromString(html, "text/html");
+  });
 
-      let happenings = doc.querySelectorAll("li[id^=happening-]");
+  const html = await response.text();
 
-      let nations = [];
-      let nats = [];
+  const happenings = new DOMParser()
+    .parseFromString(html, "text/html")
+    .querySelectorAll("li[id^=happening-]");
 
-      happenings.forEach((happening) => {
-        let nation = happening.querySelector("a.nlink").textContent;
-        let text = happening.textContent;
-        if (!nations.includes(nation)) {
-          nations.push(nation);
+  let processed = [];
+  let admitted = [];
 
-          if (
-            !text.includes("applied to join the World Assembly.") &&
-            !text.includes("resigned from the World Assembly.") &&
-            text.includes("was admitted to the World Assembly.")
-          ) {
-            nats.push(nation);
-          }
-        }
-      });
+  happenings.forEach((happening) => {
+    let nation = happening.querySelector("a.nlink").textContent;
+    let text = happening.textContent;
 
-      if (reverse) {
-        nats = nats.reverse();
+    if (!processed.includes(nation)) {
+      if (text.includes("resigned from the World Assembly.")) {
+        processed.push(nation);
+      } else if (text.includes("was admitted to the World Assembly.")) {
+        admitted.push(nation);
+        processed.push(nation);
       }
+    }
+  });
 
-      load(document.querySelector("#localid").value, nats, ",");
-
-      enableSubmit();
-    });
+  return admitted;
 }
 
-function loadManual(nats, sep = ",", reverse = false) {
+async function loadManual(nats, sep = ",", reverse = false) {
+  if (!nats) {
+    return false;
+  }
+
   disableSubmit();
 
-  load(
-    document.querySelector("#localid").value,
-    reverse
-      ? nats
-          .split(sep)
-          .map((item) => item.trim())
-          .reverse()
-      : nats.split(sep).map((item) => item.trim()),
-    sep
-  );
+  nats = nats.split(sep).map((item) => item.trim());
+
+  let localid = await getLocalId();
+
+  load(localid, reverse ? nats.reverse() : nats);
 
   enableSubmit();
 }
@@ -180,17 +195,11 @@ function enableSubmit() {
 }
 
 document.querySelector("#endorse").addEventListener("click", () => {
-  if (nations[0]) {
+  if (nations?.length > 0) {
     endorse(nations[0], localid);
   } else {
     completeEndorsements();
   }
-});
-
-document.querySelector("#refresh").addEventListener("click", (e) => {
-  e.preventDefault();
-  document.querySelector("#refresh").classList.add("disabled");
-  setLocalId();
 });
 
 document.querySelector("#save").addEventListener("click", saveProgress);
@@ -251,35 +260,12 @@ function log(type, text) {
   document.querySelector("#log").prepend(container);
 }
 
-async function setLocalId() {
-  let response = await fetch(
-    `https://www.nationstates.net/template-overall=none/page=create_region?x-useragent=${encodeURIComponent(
-      userAgent
-    )}`,
-    {
-      headers: {
-        "User-Agent": userAgent,
-      },
-    }
-  );
-
-  let text = await response.text();
-
-  document.querySelector("#localid").value = text.match(
-    /(?<=<input type="hidden" name="localid" value=").*(?=">)/g
-  );
-  document.querySelector("#refresh").classList.remove("disabled");
-  log("success", `Fetched localid.`);
-}
-
 function saveProgress() {
   document.querySelector("#save").classList.add("disabled");
-  let url = new URL(document.location.origin + document.location.pathname);
-  if (nations && nations[0]) {
+  let url = new URL(window.location.origin + window.location.pathname);
+  if (nations?.length > 0) {
     url.searchParams.append("nations", nations);
-  }
-  if (separator) {
-    url.searchParams.append("separator", separator);
+    url.searchParams.append("separator", ",");
   }
   navigator.clipboard.writeText(url).then(() => {
     let orig = document.querySelector("#save").textContent;
@@ -294,13 +280,13 @@ function saveProgress() {
 function completeEndorsements() {
   log("info", `Endorsements completed.`);
   document.querySelector("#endorse").disabled = true;
-  nations = localid = separator = undefined;
+  nations = localid = undefined;
 }
 
 document.querySelector("#manualSubmit").addEventListener("click", submitManual);
-
-document.querySelector("#nations").addEventListener("keyup", (e) => {
+document.querySelector("#nations").addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
+    e.preventDefault();
     submitManual();
   }
 });
@@ -308,10 +294,6 @@ document.querySelector("#nations").addEventListener("keyup", (e) => {
 function submitManual() {
   let nats = document.querySelector("#nations").value;
   let sep = document.querySelector("#separator").value;
-
-  if (!nats) {
-    return false;
-  }
 
   if (sep) {
     loadManual(nats, sep);
@@ -321,7 +303,6 @@ function submitManual() {
 }
 
 document.querySelector("#nationSubmit").addEventListener("click", submitNation);
-
 document.querySelector("#nation").addEventListener("keyup", (e) => {
   if (e.key === "Enter") {
     submitNation();
@@ -329,17 +310,10 @@ document.querySelector("#nation").addEventListener("keyup", (e) => {
 });
 
 function submitNation() {
-  let nation = document.querySelector("#nation").value;
-
-  if (!nation) {
-    return false;
-  }
-
-  loadNation(nation);
+  loadNation(document.querySelector("#nation").value);
 }
 
 document.querySelector("#regionSubmit").addEventListener("click", submitRegion);
-
 document.querySelector("#region").addEventListener("keyup", (e) => {
   if (e.key === "Enter") {
     submitRegion();
@@ -347,11 +321,5 @@ document.querySelector("#region").addEventListener("keyup", (e) => {
 });
 
 function submitRegion() {
-  let region = document.querySelector("#region").value;
-
-  if (!region) {
-    return false;
-  }
-
-  loadRegion(region);
+  loadRegion(document.querySelector("#region").value);
 }
