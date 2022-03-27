@@ -1,5 +1,3 @@
-const userAgent = "Applesauce | Original script author: Esfalsa";
-
 let nations;
 let localid;
 

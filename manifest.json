@@ -3,7 +3,7 @@
   "name": "Applesauce",
   "version": "0.1.0",
   "description": "A simple and flexible NationStates endorsement tool.",
-  "permissions": ["scripting"],
+  "permissions": ["scripting", "storage"],
   "host_permissions": ["*://*.nationstates.net/*"],
   "background": { "service_worker": "background.js" },
   "content_scripts": [
@@ -20,5 +20,6 @@
       "resources": ["index.html"],
       "matches": ["*://*.nationstates.net/*"]
     }
-  ]
+  ],
+  "options_page": "options.html"
 }
