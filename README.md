@@ -45,4 +45,4 @@ The only requests that may be considered automated, even though they are initiat
 
 ## License
 
-[MIT](/LICENSE)
+Applesauce is free and open-source software licensed under the [GNU Affero General Public License v3.0](/LICENSE).
