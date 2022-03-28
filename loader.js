@@ -8,16 +8,27 @@ viewport.content = "width=device-width, initial-scale=1.0";
 document.head.appendChild(viewport);
 
 async function loadPage() {
-  globalThis.userAgent = `Script: Applesauce; User: ${
-    (await chrome.storage.sync.get("userAgent")).userAgent
-  }; Script author: Esfalsa`;
+  let user = (await chrome.storage.sync.get("userAgent")).userAgent;
 
-  let index = await fetch(chrome.runtime.getURL("/index.html"));
-  let html = await index.text();
+  if (user) {
+    globalThis.userAgent = `Script: Applesauce; User: ${
+      (await chrome.storage.sync.get("userAgent")).userAgent
+    }; Script author: Esfalsa`;
 
-  document.body.insertAdjacentHTML("afterbegin", html);
+    let index = await fetch(chrome.runtime.getURL("/index.html"));
+    let html = await index.text();
 
-  chrome.runtime.sendMessage("load-index");
+    document.body.insertAdjacentHTML("afterbegin", html);
+
+    chrome.runtime.sendMessage("load-index");
+  } else {
+    let error = await fetch(chrome.runtime.getURL("/error.html"));
+    let html = await error.text();
+
+    document.body.insertAdjacentHTML("afterbegin", html);
+
+    chrome.runtime.sendMessage("load-error");
+  }
 }
 
 loadPage();

@@ -17,7 +17,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["index.html"],
+      "resources": ["index.html", "error.html"],
       "matches": ["*://*.nationstates.net/*"]
     }
   ],
