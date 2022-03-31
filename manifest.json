@@ -21,5 +21,6 @@
       "matches": ["*://*.nationstates.net/*"]
     }
   ],
-  "options_page": "options.html"
+  "options_page": "options.html",
+  "action": {}
 }

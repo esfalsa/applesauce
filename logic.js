@@ -12,6 +12,12 @@ const endorserCollapse = new bootstrap.Collapse(
 
 const params = new URL(window.location).searchParams;
 
+const fetchOptions = {
+  headers: {
+    "User-Agent": userAgent,
+  },
+};
+
 if (params.has("nation")) {
   document.querySelector("#nation").value = params.get("nation");
   loadNation(params.get("nation"), params.has("reverse"));
@@ -28,11 +34,7 @@ if (params.has("nation")) {
 async function getLocalId() {
   let response = await fetch(
     `https://www.nationstates.net/template-overall=none/page=create_region?x-useragent=${userAgent}`,
-    {
-      headers: {
-        "User-Agent": userAgent,
-      },
-    }
+    fetchOptions
   );
 
   let text = await response.text();
@@ -83,11 +85,7 @@ async function getNationCross(nation) {
     "x-useragent": userAgent,
   });
 
-  const response = await fetch(endpoint, {
-    headers: {
-      "User-Agent": userAgent,
-    },
-  });
+  const response = await fetch(endpoint, fetchOptions);
 
   const html = await response.text();
 
@@ -128,11 +126,7 @@ async function getRegionCross(region) {
     "x-useragent": userAgent,
   });
 
-  const response = await fetch(endpoint, {
-    headers: {
-      "User-Agent": userAgent,
-    },
-  });
+  const response = await fetch(endpoint, fetchOptions);
 
   const html = await response.text();
 
@@ -209,11 +203,7 @@ function endorse(nation, localid) {
     "x-useragent": userAgent,
   }).toString();
 
-  fetch(url, {
-    headers: {
-      "User-Agent": userAgent,
-    },
-  })
+  fetch(url, fetchOptions)
     .then((response) => response.text())
     .then((text) => {
       document.querySelector("#endorse").disabled = false;

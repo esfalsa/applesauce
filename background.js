@@ -23,3 +23,17 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     });
   }
 });
+
+chrome.action.onClicked.addListener(async () => {
+  let tabs = await chrome.tabs.query({
+    url: "*://*.nationstates.net/template-overall=none/page=blank/applesauce*",
+  });
+
+  if (!tabs?.length) {
+    chrome.tabs.create({
+      url: "https://www.nationstates.net/template-overall=none/page=blank/applesauce",
+    });
+  } else {
+    chrome.tabs.update(tabs[0].id, { active: true });
+  }
+});
