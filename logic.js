@@ -27,9 +27,7 @@ if (params.has("nation")) {
 
 async function getLocalId() {
   let response = await fetch(
-    `https://www.nationstates.net/template-overall=none/page=create_region?x-useragent=${encodeURIComponent(
-      userAgent
-    )}`,
+    `https://www.nationstates.net/template-overall=none/page=create_region?x-useragent=${userAgent}`,
     {
       headers: {
         "User-Agent": userAgent,
@@ -79,9 +77,7 @@ async function loadNation(nation, reverse = false) {
 
 async function getNationCross(nation) {
   let endpoint = new URL(
-    `https://www.nationstates.net/template-overall=none/nation=${encodeURIComponent(
-      nation
-    )}`
+    `https://www.nationstates.net/template-overall=none/nation=${nation}`
   );
   endpoint.search = new URLSearchParams({
     "x-useragent": userAgent,
@@ -308,7 +304,10 @@ document.querySelector("#nation").addEventListener("keyup", (e) => {
 });
 
 function submitNation() {
-  loadNation(document.querySelector("#nation").value);
+  loadNation(
+    document.querySelector("#nation").value,
+    document.querySelector("input[name='order']:checked").value === "new"
+  );
 }
 
 document.querySelector("#regionSubmit").addEventListener("click", submitRegion);
@@ -319,5 +318,8 @@ document.querySelector("#region").addEventListener("keyup", (e) => {
 });
 
 function submitRegion() {
-  loadRegion(document.querySelector("#region").value);
+  loadRegion(
+    document.querySelector("#region").value,
+    document.querySelector("input[name='order']:checked").value === "old"
+  );
 }
