@@ -1,11 +1,9 @@
-document.title = "NationStates | Applesauce";
-
 document.documentElement.lang = "en";
 
-let viewport = document.createElement("meta");
-viewport.name = "viewport";
-viewport.content = "width=device-width, initial-scale=1.0";
-document.head.appendChild(viewport);
+document.insertBefore(
+  document.implementation.createDocumentType("html", "", ""),
+  document.documentElement
+);
 
 async function loadPage() {
   let user = (await chrome.storage.sync.get("userAgent")).userAgent;
@@ -15,10 +13,13 @@ async function loadPage() {
       (await chrome.storage.sync.get("userAgent")).userAgent
     }; Script author: Esfalsa`;
 
-    let index = await fetch(chrome.runtime.getURL("/index.html"));
-    let html = await index.text();
+    let [head, body] = await Promise.all([
+      (await fetch(chrome.runtime.getURL("/head.html"))).text(),
+      (await fetch(chrome.runtime.getURL("/body.html"))).text(),
+    ]);
 
-    document.body.insertAdjacentHTML("afterbegin", html);
+    document.head.insertAdjacentHTML("afterbegin", head);
+    document.body.insertAdjacentHTML("afterbegin", body);
 
     chrome.runtime.sendMessage("load-index");
   } else {

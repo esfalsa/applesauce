@@ -36,7 +36,6 @@ async function getLocalId() {
     `https://www.nationstates.net/template-overall=none/page=create_region?x-useragent=${userAgent}`,
     fetchOptions
   );
-
   let text = await response.text();
 
   return text.match(
@@ -45,7 +44,7 @@ async function getLocalId() {
 }
 
 function load(id, nats = []) {
-  if (nats.length > 0) {
+  if (nats?.length) {
     nations = nats;
     localid = id;
 
@@ -86,7 +85,6 @@ async function getNationCross(nation) {
   });
 
   const response = await fetch(endpoint, fetchOptions);
-
   const html = await response.text();
 
   const doc = new DOMParser().parseFromString(html, "text/html");
@@ -127,7 +125,6 @@ async function getRegionCross(region) {
   });
 
   const response = await fetch(endpoint, fetchOptions);
-
   const html = await response.text();
 
   const happenings = new DOMParser()
@@ -183,7 +180,7 @@ function enableSubmit() {
 }
 
 document.querySelector("#endorse").addEventListener("click", () => {
-  if (nations?.length > 0) {
+  if (nations?.length) {
     endorse(nations[0], localid);
   } else {
     completeEndorsements();
@@ -214,7 +211,7 @@ function endorse(nation, localid) {
       } else {
         log("success", `${nation}`);
       }
-      if (!nations[0]) {
+      if (!nations?.length) {
         completeEndorsements();
       }
     });
