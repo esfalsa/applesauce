@@ -1,6 +1,15 @@
-# Applesauce
+<div align="center">
+  <img src="icons/icon.svg" width="80"/>
+  <h1>Applesauce</h1>
 
-**Applesauce** is a simple endorsement tool for NationStates.
+[![License](https://img.shields.io/github/license/esfalsa/applesauce)](LICENSE)
+[![Version](https://img.shields.io/github/manifest-json/v/esfalsa/applesauce?filename=manifest.json)](manifest.json#L4)
+
+  <p>A simple endorsement tool for NationStates that provides a single button to endorse multiple nations, one at a time, from a single tab.</p>
+
+[Report an Issue](https://www.github.com/esfalsa/applesauce/issues?labels=bug) | [Request a Feature](https://www.github.com/esfalsa/applesauce/issues?labels=enhancement) | [Download Current Version](https://github.com/esfalsa/applesauce/archive/main.zip)
+
+</div>
 
 ## Installation
 
