@@ -38,9 +38,10 @@ async function getLocalId() {
   );
   let text = await response.text();
 
-  return text.match(
-    /(?<=<input type="hidden" name="localid" value=").*(?=">)/g
-  )[0];
+  return [
+    text.match(/(?<=<span class="nnameblock">).*(?=<\/span>)/g)[0],
+    text.match(/(?<=<input type="hidden" name="localid" value=").*(?=">)/g)[0],
+  ];
 }
 
 function load(id, nats = []) {
@@ -66,10 +67,14 @@ async function loadNation(nation, reverse = false) {
 
   disableSubmit();
 
-  const [nats, localid] = await Promise.all([
+  let [nats, [nat, localid]] = await Promise.all([
     getNationCross(nation),
     getLocalId(),
   ]);
+
+  nats = nats.filter(
+    (n) => n.replace("_", " ").toLowerCase() !== nat.toLowerCase()
+  );
 
   load(localid, reverse ? nats.reverse() : nats);
 
@@ -106,10 +111,14 @@ async function loadRegion(region, reverse = false) {
 
   disableSubmit();
 
-  const [admitted, localid] = await Promise.all([
+  let [admitted, [nat, localid]] = await Promise.all([
     getRegionCross(region),
     getLocalId(),
   ]);
+
+  admitted = admitted.filter(
+    (n) => n.replace("_", " ").toLowerCase() !== nat.toLowerCase()
+  );
 
   load(localid, reverse ? admitted.reverse() : admitted);
 
@@ -160,7 +169,11 @@ async function loadManual(nats, sep = ",", reverse = false) {
 
   nats = nats.split(sep).map((item) => item.trim());
 
-  let localid = await getLocalId();
+  let [nat, localid] = await getLocalId();
+
+  nats = nats.filter(
+    (n) => n.replace("_", " ").toLowerCase() !== nat.toLowerCase()
+  );
 
   load(localid, reverse ? nats.reverse() : nats);
 
