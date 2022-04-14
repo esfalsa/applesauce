@@ -15,8 +15,13 @@ const params = new URL(window.location).searchParams;
 const fetchOptions = {
   headers: {
     "User-Agent": userAgent,
+    get userclick() {
+      return Date.now();
+    },
   },
 };
+
+const paramOptions = new URLSearchParams(fetchOptions.headers);
 
 if (params.has("nation")) {
   document.querySelector("#nation").value = params.get("nation");
@@ -32,10 +37,11 @@ if (params.has("nation")) {
 }
 
 async function getLocalId() {
-  let response = await fetch(
-    `https://www.nationstates.net/template-overall=none/page=create_region?x-useragent=${userAgent}`,
-    fetchOptions
+  const endpoint = new URL(
+    "https://www.nationstates.net/template-overall=none/page=create_region"
   );
+  endpoint.search = paramOptions;
+  let response = await fetch(endpoint, fetchOptions);
   let text = await response.text();
 
   return [
@@ -85,9 +91,7 @@ async function getNationCross(nation) {
   let endpoint = new URL(
     `https://www.nationstates.net/template-overall=none/nation=${nation}`
   );
-  endpoint.search = new URLSearchParams({
-    "x-useragent": userAgent,
-  });
+  endpoint.search = paramOptions;
 
   const response = await fetch(endpoint, fetchOptions);
   const html = await response.text();
@@ -129,9 +133,7 @@ async function getRegionCross(region) {
   let endpoint = new URL(
     `https://www.nationstates.net/page=ajax2/a=reports/view=region.${region}/filter=member`
   );
-  endpoint.search = new URLSearchParams({
-    "x-useragent": userAgent,
-  });
+  endpoint.search = paramOptions;
 
   const response = await fetch(endpoint, fetchOptions);
   const html = await response.text();
@@ -210,7 +212,7 @@ function endorse(nation, localid) {
     nation: nation,
     localid: localid,
     action: "endorse",
-    "x-useragent": userAgent,
+    ...Object.fromEntries(paramOptions),
   }).toString();
 
   fetch(url, fetchOptions)
