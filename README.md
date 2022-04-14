@@ -42,9 +42,9 @@ These are included in the URL as query parameters, e.g. as in `https://www.natio
 
 Users are responsible for ensuring the tools that they use are legal. Applesauce is fully open-source and users are strongly encouraged to review the code before using it. For convenience, a summary of how it works is below.
 
-- When the user submits a manual list of nations, one request is made to retrieve the user's `localid`.
-- When the user submits a nation to cross on, requests are made to retrieve the `localid` and to the nation's page in order to retrieve the nations endorsing it.
-- When the user submits a region to cross in, requests are made to retrieve the `localid` and to the region's Ajax2 activity page.
+- When the user submits a manual list of nations, one request is made to retrieve the user's `localid` and currently logged-in nation.
+- When the user submits a nation to cross on, requests are made to retrieve the `localid` and currently logged-in nation, and to the nation's page in order to retrieve the nations endorsing it.
+- When the user submits a region to cross in, requests are made to retrieve the `localid` and currently logged-in nation, and to the region's Ajax2 activity page.
 - When the user presses the endorse button, the extension sends a GET request emulating the behavior when an endorse button is pressed on a nation page.
 - If URL parameters are included, they are submitted when the page loads. The requests initiated are identical to user submission on the page.
 
