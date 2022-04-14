@@ -37,3 +37,15 @@ chrome.action.onClicked.addListener(async () => {
     chrome.tabs.update(tabs[0].id, { active: true });
   }
 });
+
+fetch("https://raw.githubusercontent.com/esfalsa/applesauce/main/manifest.json")
+  .then((response) => response.json())
+  .then(({ version }) => {
+    if (version !== chrome.runtime.getManifest().version) {
+      chrome.tabs.create({
+        url: `update.html?latest=${version}&current=${
+          chrome.runtime.getManifest().version
+        }`,
+      });
+    }
+  });

@@ -5,13 +5,13 @@ document.insertBefore(
   document.documentElement
 );
 
-async function loadPage() {
+(async () => {
   let user = (await chrome.storage.sync.get("userAgent")).userAgent;
 
   if (user) {
-    globalThis.userAgent = `Script: Applesauce; User: ${
-      (await chrome.storage.sync.get("userAgent")).userAgent
-    }; Script author: Esfalsa`;
+    globalThis.userAgent = `Script: Applesauce v${
+      chrome.runtime.getManifest().version
+    }; User: ${user}; Script author: Esfalsa`;
 
     let [head, body] = await Promise.all([
       (await fetch(chrome.runtime.getURL("/head.html"))).text(),
@@ -30,6 +30,4 @@ async function loadPage() {
 
     chrome.runtime.sendMessage("load-error");
   }
-}
-
-loadPage();
+})();
