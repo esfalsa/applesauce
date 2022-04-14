@@ -7,7 +7,7 @@
 
   <p>A simple endorsement tool for NationStates that provides a single button to endorse multiple nations, one at a time, from a single tab.</p>
 
-[Report an Issue](https://www.github.com/esfalsa/applesauce/issues?labels=bug) | [Request a Feature](https://www.github.com/esfalsa/applesauce/issues?labels=enhancement) | [Download Current Version](https://github.com/esfalsa/applesauce/archive/main.zip)
+[Report an Issue](https://www.github.com/esfalsa/applesauce/issues/new?labels=bug) | [Request a Feature](https://www.github.com/esfalsa/applesauce/issues/new?labels=enhancement) | [Download Current Version](https://github.com/esfalsa/applesauce/archive/main.zip)
 
 </div>
 
