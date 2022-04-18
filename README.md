@@ -22,7 +22,7 @@ Applesauce is currently only tested on Google Chrome. To install it:
 5. Drag the `applesauce-main` folder anywhere onto the extensions page. Make sure you don't delete the folder in the future.
 6. Navigate to [this page](https://www.nationstates.net/template-overall=none/page=blank/applesauce), which is where the extension injects content.
 
-The extension does not receive automatic updates. To update to the newest version, you will need to re-install the extension.
+The extension does not receive automatic updates. To update to the newest version, you will need to re-install the extension. When doing so, make sure you also remove the previous version of the extension.
 
 ## Features
 
