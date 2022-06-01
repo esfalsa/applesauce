@@ -209,7 +209,7 @@ function endorse(nation, localid) {
 
   let url = new URL("https://www.nationstates.net/cgi-bin/endorse.cgi");
   url.search = new URLSearchParams({
-    nation: nation,
+    nation: nation.replace(" ", "_").toLowerCase(),
     localid: localid,
     action: "endorse",
     ...Object.fromEntries(paramOptions),
