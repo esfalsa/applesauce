@@ -79,7 +79,7 @@ async function loadNation(nation, reverse = false) {
   ]);
 
   nats = nats.filter(
-    (n) => n.replace("_", " ").toLowerCase() !== nat.toLowerCase()
+    (n) => n.replaceAll("_", " ").toLowerCase() !== nat.toLowerCase()
   );
 
   load(localid, reverse ? nats.reverse() : nats);
@@ -121,7 +121,7 @@ async function loadRegion(region, reverse = false) {
   ]);
 
   admitted = admitted.filter(
-    (n) => n.replace("_", " ").toLowerCase() !== nat.toLowerCase()
+    (n) => n.replaceAll("_", " ").toLowerCase() !== nat.toLowerCase()
   );
 
   load(localid, reverse ? admitted.reverse() : admitted);
@@ -174,7 +174,7 @@ async function loadManual(nats, sep = ",", reverse = false) {
   let [nat, localid] = await getLocalId();
 
   nats = nats.filter(
-    (n) => n.replace("_", " ").toLowerCase() !== nat.toLowerCase()
+    (n) => n.replaceAll("_", " ").toLowerCase() !== nat.toLowerCase()
   );
 
   load(localid, reverse ? nats.reverse() : nats);
@@ -209,7 +209,7 @@ function endorse(nation, localid) {
 
   let url = new URL("https://www.nationstates.net/cgi-bin/endorse.cgi");
   url.search = new URLSearchParams({
-    nation: nation.replace(" ", "_").toLowerCase(),
+    nation: nation.replaceAll(" ", "_").toLowerCase(),
     localid: localid,
     action: "endorse",
     ...Object.fromEntries(paramOptions),
