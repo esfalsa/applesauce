@@ -1,5 +1,6 @@
 let nations;
 let localid;
+let currentNation;
 
 const loaderCollapse = new bootstrap.Collapse(
   document.querySelector("#loaderCollapse"),
@@ -12,6 +13,7 @@ const endorserCollapse = new bootstrap.Collapse(
 
 const params = new URL(window.location).searchParams;
 
+// used to add identification information to fetch requests
 const fetchOptions = {
   headers: {
     "User-Agent": userAgent,
@@ -21,20 +23,31 @@ const fetchOptions = {
   },
 };
 
+// used to add identification information to fetch endpoints
+// Chromium silently drops User-Agent header
+// https://bugs.chromium.org/p/chromium/issues/detail?id=571722
 const paramOptions = new URLSearchParams(fetchOptions.headers);
+
+disableSubmit();
+
+(async () => {
+  [localid, currentNation] = await getLocalId();
+  enableSubmit();
+})();
 
 if (params.has("nation")) {
   document.querySelector("#nation").value = params.get("nation");
-  loadNation(params.get("nation"), params.has("reverse"));
 } else if (params.has("region")) {
   document.querySelector("#region").value = params.get("region");
-  loadRegion(params.get("region"), params.has("reverse"));
 } else if (params.has("nations")) {
   let sep = params.has("separator") ? params.get("separator") : ",";
   document.querySelector("#nations").value = params.get("nations");
   document.querySelector("#separator").value = sep;
   loadManual(params.get("nations"), sep);
 }
+
+document.querySelector("#sort-new").checked = params.get("reverse") === "true";
+document.querySelector("#sort-old").checked = params.get("reverse") !== "true";
 
 async function getLocalId() {
   const endpoint = new URL(
@@ -73,13 +86,10 @@ async function loadNation(nation, reverse = false) {
 
   disableSubmit();
 
-  let [nats, [nat, localid]] = await Promise.all([
-    getNationCross(nation),
-    getLocalId(),
-  ]);
+  let nats = await getNationCross(nation);
 
   nats = nats.filter(
-    (n) => n.replaceAll("_", " ").toLowerCase() !== nat.toLowerCase()
+    (n) => n.replaceAll("_", " ").toLowerCase() !== currentNation.toLowerCase()
   );
 
   load(localid, reverse ? nats.reverse() : nats);
@@ -115,13 +125,10 @@ async function loadRegion(region, reverse = false) {
 
   disableSubmit();
 
-  let [admitted, [nat, localid]] = await Promise.all([
-    getRegionCross(region),
-    getLocalId(),
-  ]);
+  let admitted = await getRegionCross(region);
 
   admitted = admitted.filter(
-    (n) => n.replaceAll("_", " ").toLowerCase() !== nat.toLowerCase()
+    (n) => n.replaceAll("_", " ").toLowerCase() !== currentNation.toLowerCase()
   );
 
   load(localid, reverse ? admitted.reverse() : admitted);
@@ -171,10 +178,8 @@ async function loadManual(nats, sep = ",", reverse = false) {
 
   nats = nats.split(sep).map((item) => item.trim());
 
-  let [nat, localid] = await getLocalId();
-
   nats = nats.filter(
-    (n) => n.replaceAll("_", " ").toLowerCase() !== nat.toLowerCase()
+    (n) => n.replaceAll("_", " ").toLowerCase() !== currentNation.toLowerCase()
   );
 
   load(localid, reverse ? nats.reverse() : nats);

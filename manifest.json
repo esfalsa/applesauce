@@ -28,5 +28,5 @@
   ],
   "options_page": "options.html",
   "action": {},
-  "disabled": true
+  "disabled": false
 }
