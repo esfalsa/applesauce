@@ -40,8 +40,12 @@ chrome.action.onClicked.addListener(async () => {
 
 fetch("https://raw.githubusercontent.com/esfalsa/applesauce/main/manifest.json")
   .then((response) => response.json())
-  .then(({ version }) => {
-    if (version !== chrome.runtime.getManifest().version) {
+  .then(({ version, disabled }) => {
+    if (disabled || chrome.runtime.getManifest().disabled) {
+      chrome.tabs.create({
+        url: "disabled.html",
+      });
+    } else if (version !== chrome.runtime.getManifest().version) {
       chrome.tabs.create({
         url: `update.html?latest=${version}&current=${
           chrome.runtime.getManifest().version
