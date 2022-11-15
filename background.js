@@ -7,7 +7,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       },
       sendResponse("success")
     );
-    return true;
   } else if (request === "load-error") {
     chrome.scripting.executeScript(
       {
@@ -16,12 +15,24 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       },
       sendResponse("success")
     );
-    return true;
   } else if (request === "open-options") {
     chrome.runtime.openOptionsPage(() => {
       sendResponse("success");
     });
   }
+
+  fetch(
+    "https://raw.githubusercontent.com/esfalsa/applesauce/main/manifest.json"
+  )
+    .then((response) => response.json())
+    .then(({ disabled }) => {
+      if (disabled || chrome.runtime.getManifest().disabled) {
+        chrome.tabs.create({
+          url: "disabled.html",
+        });
+        chrome.tabs.remove(sender.tab.id);
+      }
+    });
 });
 
 chrome.action.onClicked.addListener(async () => {
