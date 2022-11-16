@@ -13,25 +13,11 @@ const endorserCollapse = new bootstrap.Collapse(
 
 const params = new URL(window.location).searchParams;
 
-// used to add identification information to fetch requests
-const fetchOptions = {
-  headers: {
-    "User-Agent": userAgent,
-    get userclick() {
-      return Date.now();
-    },
-  },
-};
-
-// used to add identification information to fetch endpoints
-// Chromium silently drops User-Agent header
-// https://bugs.chromium.org/p/chromium/issues/detail?id=571722
-const paramOptions = new URLSearchParams(fetchOptions.headers);
-
 disableSubmit();
 
 (async () => {
-  [localid, currentNation] = await getLocalId();
+  [currentNation, localid] = await getLocalId();
+  console.log(localid, currentNation);
   enableSubmit();
 })();
 
@@ -49,13 +35,34 @@ if (params.has("nation")) {
 document.querySelector("#sort-new").checked = params.get("reverse") === "true";
 document.querySelector("#sort-old").checked = params.get("reverse") !== "true";
 
+async function fetchNS(pathname, options) {
+  const userclick = Date.now();
+
+  // identify script in URL parameters since Chromium silently drops User-Agent header
+  // https://bugs.chromium.org/p/chromium/issues/detail?id=571722
+  let resource = new URL(pathname, "https://www.nationstates.net");
+  resource.searchParams.append("User-Agent", userAgent);
+  resource.searchParams.append("userclick", userclick);
+
+  const response = await fetch(resource, {
+    ...options,
+    headers: {
+      "User-Agent": userAgent,
+      userclick: userclick,
+    },
+  });
+  const text = await response.text();
+
+  return text;
+}
+
 async function getLocalId() {
-  const endpoint = new URL(
-    "https://www.nationstates.net/template-overall=none/page=create_region"
-  );
-  endpoint.search = paramOptions;
-  let response = await fetch(endpoint, fetchOptions);
-  let text = await response.text();
+  const text = await fetchNS("/template-overall=none/page=create_region");
+
+  console.log([
+    text.match(/(?<=<span class="nnameblock">).*(?=<\/span>)/g)[0],
+    text.match(/(?<=<input type="hidden" name="localid" value=").*(?=">)/g)[0],
+  ]);
 
   return [
     text.match(/(?<=<span class="nnameblock">).*(?=<\/span>)/g)[0],
@@ -98,13 +105,7 @@ async function loadNation(nation, reverse = false) {
 }
 
 async function getNationCross(nation) {
-  let endpoint = new URL(
-    `https://www.nationstates.net/template-overall=none/nation=${nation}`
-  );
-  endpoint.search = paramOptions;
-
-  const response = await fetch(endpoint, fetchOptions);
-  const html = await response.text();
+  const html = await fetchNS(`/template-overall=none/nation=${nation}`);
 
   const doc = new DOMParser().parseFromString(html, "text/html");
   let nats = [nation];
@@ -137,13 +138,9 @@ async function loadRegion(region, reverse = false) {
 }
 
 async function getRegionCross(region) {
-  let endpoint = new URL(
-    `https://www.nationstates.net/page=ajax2/a=reports/view=region.${region}/filter=member`
+  const html = await fetchNS(
+    `/page=ajax2/a=reports/view=region.${region}/filter=member`
   );
-  endpoint.search = paramOptions;
-
-  const response = await fetch(endpoint, fetchOptions);
-  const html = await response.text();
 
   const happenings = new DOMParser()
     .parseFromString(html, "text/html")
@@ -212,29 +209,25 @@ document.querySelector("#save").addEventListener("click", saveProgress);
 function endorse(nation, localid) {
   document.querySelector("#endorse").disabled = true;
 
-  let url = new URL("https://www.nationstates.net/cgi-bin/endorse.cgi");
-  url.search = new URLSearchParams({
+  const data = new URLSearchParams({
     nation: nation.replaceAll(" ", "_").toLowerCase(),
     localid: localid,
     action: "endorse",
-    ...Object.fromEntries(paramOptions),
   }).toString();
 
-  fetch(url, fetchOptions)
-    .then((response) => response.text())
-    .then((text) => {
-      document.querySelector("#endorse").disabled = false;
-      nations.shift();
-      let error = text.match(/(?<=<p class="error">\n).*(?=\n<p>)/gms);
-      if (error) {
-        log("error", `${nation}: ${error}`);
-      } else {
-        log("success", `${nation}`);
-      }
-      if (!nations?.length) {
-        completeEndorsements();
-      }
-    });
+  fetchNS(`/cgi-bin/endorse.cgi?${data.toString()}`).then((text) => {
+    document.querySelector("#endorse").disabled = false;
+    nations.shift();
+    let error = text.match(/(?<=<p class="error">\n).*(?=\n<p>)/gms);
+    if (error) {
+      log("error", `${nation}: ${error}`);
+    } else {
+      log("success", `${nation}`);
+    }
+    if (!nations?.length) {
+      completeEndorsements();
+    }
+  });
 }
 
 function log(type, text) {

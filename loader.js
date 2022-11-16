@@ -9,9 +9,9 @@ document.insertBefore(
   let user = (await chrome.storage.sync.get("userAgent")).userAgent;
 
   if (user) {
-    globalThis.userAgent = `Script: Applesauce v${
+    globalThis.userAgent = `Script: Applesauce/${
       chrome.runtime.getManifest().version
-    }; User: ${user}; Script author: Esfalsa`;
+    }; By: Esfalsa; User: ${user}`;
 
     let [head, body] = await Promise.all([
       (await fetch(chrome.runtime.getURL("/head.html"))).text(),
