@@ -42,15 +42,15 @@ These are included in the URL as query parameters, e.g. as in `https://www.natio
 
 Users are responsible for ensuring the tools that they use are legal. Applesauce is fully open-source and users are strongly encouraged to review the code before using it. For convenience, a summary of how it works is below.
 
-- When the user submits a manual list of nations, one request is made to retrieve the user's `localid` and currently logged-in nation.
+- When the user opens the Applesauce page, one request is made to retrieve the user's `localid` and currently logged-in nation.
 - When the user submits a nation to cross on, requests are made to retrieve the `localid` and currently logged-in nation, and to the nation's page in order to retrieve the nations endorsing it.
 - When the user submits a region to cross in, requests are made to retrieve the `localid` and currently logged-in nation, and to the region's Ajax2 activity page.
 - When the user presses the endorse button, the extension sends a GET request emulating the behavior when an endorse button is pressed on a nation page.
-- If URL parameters are included, they are submitted when the page loads. The requests initiated are identical to user submission on the page.
+- If URL parameters are included, they are inputted when the page loads.
 
-All requests made by the extension are user-initiated and therefore [not subject](https://forum.nationstates.net/viewtopic.php?f=15&t=491427&p=37859790#p37859790) to the usual rate limits in the script rules. No requests are made without user input, whether by loading a page with URL parameters, by loading nations on the extension page, or by clicking the endorse button. No requests for endorsements are run simultaneously; as per the simultaneity rule, the button is disabled until a complete response is received from the NationStates server.
+All requests made by the extension are user-initiated and therefore [not subject](https://forum.nationstates.net/viewtopic.php?f=15&t=491427&p=37859790#p37859790) to the usual rate limits in the script rules. No requests are made without user input, whether by loading the extension page, by loading nations on the extension page, or by clicking the endorse button. No requests for endorsements are run simultaneously; as per the simultaneity rule, the button is disabled until a complete response is received from the NationStates server.
 
-The only requests that may be considered automated, even though they are initiated only when a user deliberately loads the Applesauce page, are those made when URL parameters are included. Because these requests are only run after direct user input to load the page, there is no automatic rate-limiting. If you would like to limit these to the 10 requests per minute allowed under the script rules, simply avoid refreshing the page too often.
+The only request that may be considered automated is the one that retrieves the user's `localid` and currently logged-in nation. This request is initiated only with the deliberate user action of loading the Applesauce page and follows the simultaneity rule.
 
 ## License
 
