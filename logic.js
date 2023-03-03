@@ -17,7 +17,6 @@ disableSubmit();
 
 (async () => {
   [currentNation, localid] = await getLocalId();
-  console.log(localid, currentNation);
   enableSubmit();
 })();
 
@@ -41,6 +40,8 @@ async function fetchNS(pathname, options) {
   // identify script in URL parameters since Chromium silently drops User-Agent header
   // https://bugs.chromium.org/p/chromium/issues/detail?id=571722
   let resource = new URL(pathname, "https://www.nationstates.net");
+
+  // userAgent injected into globalThis (see loader.js)
   resource.searchParams.append("User-Agent", userAgent);
   resource.searchParams.append("userclick", userclick);
 
@@ -58,11 +59,6 @@ async function fetchNS(pathname, options) {
 
 async function getLocalId() {
   const text = await fetchNS("/template-overall=none/page=create_region");
-
-  console.log([
-    text.match(/(?<=<span class="nnameblock">).*(?=<\/span>)/g)[0],
-    text.match(/(?<=<input type="hidden" name="localid" value=").*(?=">)/g)[0],
-  ]);
 
   return [
     text.match(/(?<=<span class="nnameblock">).*(?=<\/span>)/g)[0],
@@ -281,7 +277,8 @@ document.querySelector("#manualSubmit").addEventListener("click", submitManual);
 document.querySelector("#nations").addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
     e.preventDefault();
-    submitManual();
+    document.querySelector("#nations").blur();
+    document.querySelector("#manualSubmit").click();
   }
 });
 
@@ -299,7 +296,8 @@ function submitManual() {
 document.querySelector("#nationSubmit").addEventListener("click", submitNation);
 document.querySelector("#nation").addEventListener("keyup", (e) => {
   if (e.key === "Enter") {
-    submitNation();
+    document.querySelector("#nation").blur();
+    document.querySelector("#nationSubmit").click();
   }
 });
 
@@ -313,7 +311,8 @@ function submitNation() {
 document.querySelector("#regionSubmit").addEventListener("click", submitRegion);
 document.querySelector("#region").addEventListener("keyup", (e) => {
   if (e.key === "Enter") {
-    submitRegion();
+    document.querySelector("#region").blur();
+    document.querySelector("#regionSubmit").click();
   }
 });
 
