@@ -2,6 +2,7 @@
   "manifest_version": 3,
   "name": "Applesauce",
   "version": "1.0.3",
+  "disabled": true,
   "description": "A simple and flexible NationStates endorsement tool.",
   "icons": {
     "16": "icons/icon16.png",
